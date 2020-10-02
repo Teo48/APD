@@ -23,6 +23,7 @@ void* add(void *arg) {
 
     free(p);
     pthread_exit(NULL);
+    return NULL;
 }
 
 int min(int a, int b) { 
@@ -64,9 +65,9 @@ int main(int argc, char *argv[]) {
         r = pthread_create(&threads[i], NULL, add, (void *)p);        
         
         if (r) {
-			printf("Eroare la asteptarea thread-ului %d\n", i);
-	  		exit(-1);
-		}
+	  		    printf("Eroare la asteptarea thread-ului %d\n", i);
+	  		    exit(-1);
+		    }
     }
 
     /*
@@ -76,7 +77,7 @@ int main(int argc, char *argv[]) {
     */
 
     for (int i = 0 ; i < cores ; ++i) {
-		r = pthread_join(threads[i], NULL);
+       r = pthread_join(threads[i], NULL);
     }
 
     for (int i = 0; i < array_size; i++) {
