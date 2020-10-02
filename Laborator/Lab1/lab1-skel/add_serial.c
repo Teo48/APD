@@ -77,7 +77,16 @@ int main(int argc, char *argv[]) {
     */
 
     for (int i = 0 ; i < cores ; ++i) {
+<<<<<<< HEAD
        r = pthread_join(threads[i], NULL);
+=======
+		r = pthread_join(threads[i], NULL);
+		
+		if (r) {
+	  		printf("Eroare la asteptarea thread-ului %ld\n", id);
+	  		exit(-1);
+		}
+>>>>>>> 559dbb1e0c6a498b7dc9671ac96a257398ef64a4
     }
 
     for (int i = 0; i < array_size; i++) {
