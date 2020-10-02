@@ -4,18 +4,20 @@
 #include <unistd.h>
 
 void *f(void *arg) {
-	int id = *(int* )arg;
+		int id = *(int* )arg;
 	
 	//for (int i = 0 ; i < 100 ; ++i) {
 	//	printf("Iteratia:%d Hello World din thread-ul %ld!\n", i, id);
 	//}
     
-	printf("Hello World din thread-ul %d!\n", id);
+		printf("Hello World din thread-ul %d!\n", id);
   	pthread_exit(NULL);
+
+		return NULL;
 }
 
 void *dummy_f(void *arg) {
-	int id = *(int *)arg;
+		int id = *(int *)arg;
 	
     printf("Hello World din thread-ul %d!\n", id);
   	
@@ -25,9 +27,9 @@ void *dummy_f(void *arg) {
 
 int main(int argc, char *argv[]) {
     #define NUM_THREADS cores
-	long cores = sysconf(_SC_NPROCESSORS_CONF);
-	pthread_t threads[NUM_THREADS];
-	int r;
+		long cores = sysconf(_SC_NPROCESSORS_CONF);
+		pthread_t threads[NUM_THREADS];
+		int r;
     long id;
     void *status;
 	
@@ -60,15 +62,15 @@ int main(int argc, char *argv[]) {
 	
     if (r) {
         printf("Eroare la crearea thread-ului 0\n");
-  		exit(-1);
-	}
+  			exit(-1);
+		}
     
     r = pthread_create(&threads[1], NULL, dummy_f, &thread_id[1]);
 	
     if (r) {
         printf("Eroare la crearea thread-ului 1\n");
-  		exit(-1);
-	}
+  			exit(-1);
+		}
 	 
     pthread_join(threads[0], &status);
     pthread_join(threads[1], &status);
