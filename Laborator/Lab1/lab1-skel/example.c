@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
         printf("Eroare la crearea thread-ului 1\n");
   		exit(-1);
 	}
-
+	 
     pthread_join(threads[0], &status);
     pthread_join(threads[1], &status);
     pthread_exit(NULL);
