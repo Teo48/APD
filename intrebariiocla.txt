@@ -1,0 +1,131 @@
+Când poate apărea un atac de tip buffer overflow?
+A. Când programul nu returnează nimic
+B. Când lungimea datelor de intrare nu este verificată
+C. Când programul generează un rezultat greșit
+D. Când programul nu compilează
+Answer: B
+
+Într-un atac de tip buffer overflow:
+A. Programul nu compilează
+B. Programul nu returnează nicio valoare
+C. Se citesc mai multe date decat dimensiunea buffer-ului
+D. Programul se generează întotdeauna Segmentation Fault
+Answer: C
+
+Considerăm un offset de 56 între adresa de retur a unei funcții și buffer.
+Ce payload trebuie generat pentru a suprascrie adresa de retur cu 0xCAFEBABE?
+A. 'A'*60 + "\xCA\xFE\xBA\xBE"
+B. 'A'*64 + "\xBE\xBA\xFE\xCA"
+C. 'A'*56 + "\xBE\xBA\xFE\xCA"
+D. 'A'*52 + "\xCA\xFE\xBA\xBE"
+Answer: C
+
+Se dă următoarea declarație a unui buffer char buf[64]. Care dintre următoarele
+variante NU poate genera un buffer overflow:
+A. fgets(buf, 128, stdin)
+B. read(STDIN_FILENO, buf, 30)
+C. write(STDOUT_FILENO, buf, 72)
+D. memcpy(buf, info, 256)
+Answer: B
+
+Reprezintă o metodă de protecție împotriva atacurilor de tip buffer overflow:
+A. GDB
+B. NM
+C. OBJDUMP
+D. ASLR
+Answer: D
+
+Se dă următoarea porțiune de cod în assembly:
+push ebp
+mov ebp, esp
+sub esp, 0x44
+push 0x6964654a
+push format
+call printf
+add esp, 0x8
+cmp dword [ebp - 0x4], 0xCAFEBABE
+je jackpot
+Cum trebuie să arate payload-ul pentru ca jump-ul să fie executat?
+A. 0x4 * "A" + "\xCA\xFE\xBA\xBE"
+B. 0x44 * "A" + "\xBE\xBA\xFE\xCA"
+C. 0x40 * "A" + "\xBE\xBA\xFE\xCA"
+D. 0x48 * "A" + "\xCA\xFE\xBA\xBE"
+Answer: C
+
+Care este declarația unui buffer de tip char**, echivalent cu următoarea instrucțiune assembly sub esp, 0x40?
+A. char *buf[16]
+B. char **buf[20]
+C. char *buf[40]
+D. char *buf[64]
+Answer: A
+
+Se dă următoarea declarație a unui buffer în assembly: sub esp, 256.
+Care dintre următoarele declarații C sunt corecte:
+A. int buf[32], char buf[256], double buf[16]
+B. unsigned short[128], int buf[256], long long buf[8] 
+C. int buf[64], unsigned short buf[128], char buf[128]
+D. double buf[32], int buf[64], unsigned short[128]
+Answer: D
+
+Fie următoarea funcție:
+void func() {
+    double trouble;
+    int buf[10];
+    ...
+}
+Câți octeți sunt între adresa de început a lui buf si adresa de retur a lui f?
+A. 52
+B. 48
+C. 18
+D. 44
+Answer: A
+
+Se dau următoarele declarații char buf[32], char long_string[256].
+Care dintre următoarele apeluri de funcții pot conduce la un buffer overflow?
+A. memcpy(buf, long_string, sizeof(buf))
+B. fputs(long_string, sizeof(buf), stdout)
+C. read(STDIN_FILENO, buf, 31)
+D. memcpy(buf, long_string, sizeof(long_string))
+Answer: D
+
+Alegeți varianta corectă:
+A. Bufferele conțin informații temporare
+B. Tipul elementelor unui buffer este relevant
+C. Bufferele nu pot fi alocate dinamic
+D. Bufferele sunt simple variabile
+Answer: A
+
+Când poate apărea o eroare de tipul OOB(Out of bounds)?
+A. Când programul nu afisează rezultatul așteptat
+B. Când nu s-a apelat ret în cadrul unei funcții
+C. Când se face bounds checking
+D. Când se fac operații dincolo de limita bufferului
+Answer: D
+
+NU reprezintă o metodă de abuzare a bufferelor:
+A. Canari
+B. Buffer overflow
+C. OOB(Out of bounds)
+D. Memory disclosure
+Answer: A
+
+În urma unui out of bounds(OOB) pe stivă:
+A. Execuția programului nu este afectată
+B. Stiva se redimensionează
+C. Se poate face disclose sau overwrite la adresa de retur
+D. Întotdeauna programul generează Segmentation Fault
+Answer: C
+
+Care afirmație este adevărată în cazul unui buffer overflow?
+A. Se pot citi informații dincolo de limita buffer-ului
+B. Se poate altera fluxul normal de execuție al programului
+C. Pot fi afectate informații dintr-un alt stack frame
+D. Toate variantele sunt corecte
+Answer: D
+
+Este un utilitar folosit în detectarea abuzării buffer-elor:
+A. nasm
+B. vscodium
+C. nvim
+D. IDA
+Answer: D
