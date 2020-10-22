@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <string.h>
 
 int N;
 int **a;
@@ -23,6 +24,7 @@ int **AUXM62;
 int **M7;
 int **AUXM71;
 int **AUXM72;
+pthread_barrier_t barrier_C11, barrier_C12, barrier_C21, barrier_C22;
 
 void get_args(int argc, char **argv)
 {
@@ -164,57 +166,170 @@ void sub_matrix(int **C, int startCi, int startCj,  int **A, int startAi, int st
 			C[startCi + i][startCj + j] = A[startAi + i][startAj + j] - B[startBi + i][startBj + j];
 }
 
+void *compute_M1(void *arg) {
+	add_matrix(AUXM11, 0, 0, a, 0, 0, a, N/2, N/2);
+	add_matrix(AUXM12, 0, 0, b, 0, 0, b, N/2, N/2);
+	mul_matrix(M1, 0, 0, AUXM11, 0, 0, AUXM12, 0, 0);
+	pthread_barrier_wait(&barrier_C11);
+	pthread_barrier_wait(&barrier_C22);
+	return NULL;
+}
+
+void *compute_M2(void *arg) {
+	add_matrix(AUXM21, 0,0, a, N/2, 0, a, N/2, N/2);
+	mul_matrix(M2, 0, 0, AUXM21, 0, 0, b, 0, 0);
+	pthread_barrier_wait(&barrier_C21);
+	pthread_barrier_wait(&barrier_C22);	
+	return NULL;
+}
+
+void *compute_M3(void *arg) {
+	sub_matrix(AUXM31, 0, 0, b, 0, N/2, b, N/2, N/2);
+	mul_matrix(M3, 0, 0, a, 0, 0, AUXM31, 0, 0);
+	pthread_barrier_wait(&barrier_C12);
+	pthread_barrier_wait(&barrier_C22);	
+	return NULL;
+}
+
+void *compute_M4(void *arg) {
+	sub_matrix(AUXM41, 0, 0, b, N/2, 0, b, 0, 0);
+	mul_matrix(M4, 0, 0, a, N/2, N/2, AUXM41, 0, 0);
+	pthread_barrier_wait(&barrier_C11);
+	pthread_barrier_wait(&barrier_C21);
+	return NULL;
+}
+
+void *compute_M5(void *arg) {
+	add_matrix(AUXM51, 0,0, a, 0, 0, a, 0, N/2);
+	mul_matrix(M5, 0, 0, AUXM51, 0, 0, b, N/2, N/2);
+	pthread_barrier_wait(&barrier_C11);
+	pthread_barrier_wait(&barrier_C12);
+	return NULL;
+}
+
+void *compute_M6(void *arg) {
+	sub_matrix(AUXM61, 0, 0, a, N/2, 0, a, 0, 0);
+	add_matrix(AUXM62, 0, 0, b, 0, 0, b, 0, N/2);
+	mul_matrix(M6, 0, 0, AUXM61, 0, 0, AUXM62, 0, 0);
+	pthread_barrier_wait(&barrier_C22);
+	return NULL;
+}
+
+void *compute_M7(void *arg) {
+	sub_matrix(AUXM71, 0, 0, a, 0, N/2, a, N/2, N/2);
+	add_matrix(AUXM72, 0, 0, b, N/2, 0, b, N/2, N/2);
+	mul_matrix(M7, 0, 0, AUXM71, 0, 0, AUXM72, 0, 0);
+	pthread_barrier_wait(&barrier_C11);
+	return NULL;
+}
+
+void *compute_C11(void *arg) {
+	add_matrix(c, 0, 0, M1, 0, 0, M4, 0, 0);
+	sub_matrix(c, 0, 0, c, 0, 0, M5, 0, 0);
+	add_matrix(c, 0, 0, c, 0, 0, M7, 0, 0);
+	return NULL;
+}
+
+void *compute_C12(void *arg) {
+	add_matrix(c, 0, N/2, M3, 0, 0, M5, 0, 0);
+	return NULL;	
+}
+
+void *compute_C21(void *arg) {
+	add_matrix(c, N/2, 0, M2, 0, 0, M4, 0, 0);
+	return NULL;
+}
+
+void *compute_C22(void *arg) {
+	sub_matrix(c, N/2, N/2, M1, 0, 0, M2, 0, 0);
+	add_matrix(c, N/2, N/2, c, N/2, N/2, M3, 0, 0);
+	add_matrix(c, N/2, N/2, c, N/2, N/2, M6, 0, 0);
+	return NULL;
+}
+
 int main(int argc, char *argv[])
 {
 	get_args(argc, argv);
 	init();
 
-	// calculul matricii M1
-	add_matrix(AUXM11, 0, 0, a, 0, 0, a, N/2, N/2);
-	add_matrix(AUXM12, 0, 0, b, 0, 0, b, N/2, N/2);
-	mul_matrix(M1, 0, 0, AUXM11, 0, 0, AUXM12, 0, 0);
+	// // calculul matricii M1
+	// add_matrix(AUXM11, 0, 0, a, 0, 0, a, N/2, N/2);
+	// add_matrix(AUXM12, 0, 0, b, 0, 0, b, N/2, N/2);
+	// mul_matrix(M1, 0, 0, AUXM11, 0, 0, AUXM12, 0, 0);
 
-	// calculul matricii M2
-	add_matrix(AUXM21, 0,0, a, N/2, 0, a, N/2, N/2);
-	mul_matrix(M2, 0, 0, AUXM21, 0, 0, b, 0, 0);
+	// // calculul matricii M2
+	// add_matrix(AUXM21, 0,0, a, N/2, 0, a, N/2, N/2);
+	// mul_matrix(M2, 0, 0, AUXM21, 0, 0, b, 0, 0);
 
-	// calculul matricii M3
-	sub_matrix(AUXM31, 0, 0, b, 0, N/2, b, N/2, N/2);
-	mul_matrix(M3, 0, 0, a, 0, 0, AUXM31, 0, 0);
+	// // calculul matricii M3
+	// sub_matrix(AUXM31, 0, 0, b, 0, N/2, b, N/2, N/2);
+	// mul_matrix(M3, 0, 0, a, 0, 0, AUXM31, 0, 0);
 
-	// calculul matricii M4
-	sub_matrix(AUXM41, 0, 0, b, N/2, 0, b, 0, 0);
-	mul_matrix(M4, 0, 0, a, N/2, N/2, AUXM41, 0, 0);
+	// // calculul matricii M4
+	// sub_matrix(AUXM41, 0, 0, b, N/2, 0, b, 0, 0);
+	// mul_matrix(M4, 0, 0, a, N/2, N/2, AUXM41, 0, 0);
 
-	// calculul matricii M5
-	add_matrix(AUXM51, 0,0, a, 0, 0, a, 0, N/2);
-	mul_matrix(M5, 0, 0, AUXM51, 0, 0, b, N/2, N/2);
+	// // calculul matricii M5
+	// add_matrix(AUXM51, 0,0, a, 0, 0, a, 0, N/2);
+	// mul_matrix(M5, 0, 0, AUXM51, 0, 0, b, N/2, N/2);
 
-	// calculul matricii M6
-	sub_matrix(AUXM61, 0, 0, a, N/2, 0, a, 0, 0);
-	add_matrix(AUXM62, 0, 0, b, 0, 0, b, 0, N/2);
-	mul_matrix(M6, 0, 0, AUXM61, 0, 0, AUXM62, 0, 0);
+	// // calculul matricii M6
+	// sub_matrix(AUXM61, 0, 0, a, N/2, 0, a, 0, 0);
+	// add_matrix(AUXM62, 0, 0, b, 0, 0, b, 0, N/2);
+	// mul_matrix(M6, 0, 0, AUXM61, 0, 0, AUXM62, 0, 0);
 
-	// calculul matricii M7
-	sub_matrix(AUXM71, 0, 0, a, 0, N/2, a, N/2, N/2);
-	add_matrix(AUXM72, 0, 0, b, N/2, 0, b, N/2, N/2);
-	mul_matrix(M7, 0, 0, AUXM71, 0, 0, AUXM72, 0, 0);
+	// // calculul matricii M7
+	// sub_matrix(AUXM71, 0, 0, a, 0, N/2, a, N/2, N/2);
+	// add_matrix(AUXM72, 0, 0, b, N/2, 0, b, N/2, N/2);
+	// mul_matrix(M7, 0, 0, AUXM71, 0, 0, AUXM72, 0, 0);
 
-	// calculul submatricii C1,1
-	add_matrix(c, 0, 0, M1, 0, 0, M4, 0, 0);
-	sub_matrix(c, 0, 0, c, 0, 0, M5, 0, 0);
-	add_matrix(c, 0, 0, c, 0, 0, M7, 0, 0);
+	// // calculul submatricii C1,1
+	// add_matrix(c, 0, 0, M1, 0, 0, M4, 0, 0);
+	// sub_matrix(c, 0, 0, c, 0, 0, M5, 0, 0);
+	// add_matrix(c, 0, 0, c, 0, 0, M7, 0, 0);
 
-	// calculul submatricii C1,2
-	add_matrix(c, 0, N/2, M3, 0, 0, M5, 0, 0);
+	// // calculul submatricii C1,2
+	// add_matrix(c, 0, N/2, M3, 0, 0, M5, 0, 0);
 
-	// calculul submatricii C2,1
-	add_matrix(c, N/2, 0, M2, 0, 0, M4, 0, 0);
+	// // calculul submatricii C2,1
+	// add_matrix(c, N/2, 0, M2, 0, 0, M4, 0, 0);
 
-	// calculul submatricii C2,2
-	sub_matrix(c, N/2, N/2, M1, 0, 0, M2, 0, 0);
-	add_matrix(c, N/2, N/2, c, N/2, N/2, M3, 0, 0);
-	add_matrix(c, N/2, N/2, c, N/2, N/2, M6, 0, 0);
+	// // calculul submatricii C2,2
+	// sub_matrix(c, N/2, N/2, M1, 0, 0, M2, 0, 0);
+	// add_matrix(c, N/2, N/2, c, N/2, N/2, M3, 0, 0);
+	// add_matrix(c, N/2, N/2, c, N/2, N/2, M6, 0, 0);
+
+	pthread_t threads_id[11];
+	
+    pthread_barrier_init(&barrier_C11, NULL, 4);
+    pthread_barrier_init(&barrier_C12, NULL, 2);
+    pthread_barrier_init(&barrier_C21, NULL, 2);
+    pthread_barrier_init(&barrier_C22, NULL, 4);
+
+	pthread_create(&threads_id[0], NULL, compute_M1, NULL);
+	pthread_create(&threads_id[1], NULL, compute_M2, NULL);
+	pthread_create(&threads_id[2], NULL, compute_M3, NULL);
+	pthread_create(&threads_id[3], NULL, compute_M4, NULL);
+	pthread_create(&threads_id[4], NULL, compute_M5, NULL);
+	pthread_create(&threads_id[5], NULL, compute_M6, NULL);
+	pthread_create(&threads_id[6], NULL, compute_M7, NULL);
+
+	for (int i = 0 ; i < 7 ; ++i) {
+		pthread_join(threads_id[i], NULL);
+	}
+	pthread_create(&threads_id[7], NULL, compute_C11, NULL);
+	pthread_create(&threads_id[8], NULL, compute_C12, NULL);
+	pthread_create(&threads_id[9], NULL, compute_C21, NULL);
+	pthread_create(&threads_id[10], NULL, compute_C22, NULL);
+	
+	for (int i = 7 ; i < 11 ; ++i) {
+		pthread_join(threads_id[i], NULL);
+	}
+
+    pthread_barrier_destroy(&barrier_C11);
+    pthread_barrier_destroy(&barrier_C12);
+    pthread_barrier_destroy(&barrier_C21);
+    pthread_barrier_destroy(&barrier_C22);		
 
 	print(c);
 
