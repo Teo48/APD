@@ -8,13 +8,15 @@ pthread_barrier_t barrier;
 
 void *f(void *arg)
 {	
-	pthread_barrier_wait(&barrier);
+	
 	int thread_id = *(int *)arg;
 
 	if (thread_id == 1) {
 		printf("1\n");
 	}
-
+	
+	pthread_barrier_wait(&barrier);
+	
 	if (thread_id == 0) {
 		printf("2\n");
 	}
