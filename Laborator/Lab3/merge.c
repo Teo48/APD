@@ -120,8 +120,8 @@ void *thread_function(void *arg)
 {
 	
 	int thread_id = *(int *)arg;
-	int start = thread_id * ceil((double) 2 * N / P);
-	int end = min((thread_id + 1) * ceil((double) 2 * N / P), N);
+	int start = thread_id * ceil((double) N / P);
+	int end = min((thread_id + 1) * ceil((double)N / P), N);
 	int *aux;
 
 	for (int width = 1; width < N; width *= 2) {
