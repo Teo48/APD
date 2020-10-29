@@ -191,6 +191,7 @@ int main(int argc, char *argv[])
 	}
 
 	// shear sort clasic - trebuie paralelizat
+	// int aux[L], k, j;
 	// for (k = 0; k < log(N) + 1; k++) {
 	// 	// se sorteaza liniile pare crescator
 	// 	// se sorteaza liniile impare descrescator

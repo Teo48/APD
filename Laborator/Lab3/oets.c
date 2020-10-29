@@ -98,8 +98,7 @@ void *thread_function(void *arg)
 	int aux;
 	while (!sorted) {
 		pthread_barrier_wait(&barrier);
-		sorted = 1;
-		odd_or_even_sorted = 1;
+		sorted = odd_or_even_sorted = 1;
 	
 		for (int j = start_odd; j < end_odd ; j += 2) {
 			if (v[j] > v[j + 1]) {
@@ -158,21 +157,21 @@ int main(int argc, char *argv[])
 	}
 
 	// bubble sort clasic - trebuie transformat in OETS si paralelizat
-	/*
-	int sorted = 0;
-	while (!sorted) {
-		sorted = 1;
+	// int aux;
+	// int sorted = 0;
+	// while (!sorted) {
+	// 	sorted = 1;
 
-		for (i = 0; i < N-1; i++) {
-			if(v[i] > v[i + 1]) {
-				aux = v[i];
-				v[i] = v[i + 1];
-				v[i + 1] = aux;
-				sorted = 0;
-			}
-		}
-	}
-	*/
+	// 	for (i = 0; i < N-1; i++) {
+	// 		if(v[i] > v[i + 1]) {
+	// 			aux = v[i];
+	// 			v[i] = v[i + 1];
+	// 			v[i + 1] = aux;
+	// 			sorted = 0;
+	// 		}
+	// 	}
+	// }
+
 	// se afiseaza vectorul etalon
 	// se afiseaza vectorul curent
 	// se compara cele doua

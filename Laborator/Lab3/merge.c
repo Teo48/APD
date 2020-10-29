@@ -118,23 +118,14 @@ void print()
 
 void *thread_function(void *arg)
 {
-	
 	int thread_id = *(int *)arg;
-	int start = thread_id * ceil((double) N / P);
-	int end = min((thread_id + 1) * ceil((double)N / P), N);
 	int *aux;
 
-	for (int width = 1; width < N; width *= 2) {
-		if (end - start == width) {
-			if ((end / width) & 1) {
-				end -= width;
-			} else {
-				start -= width;
-			}
-		}
-
-		for (int i = start; i < end; i += 2 * width) {
-			merge(v, i, i + width, i + 2 * width, vNew);
+	for (int width = 1; width < N; width <<= 1) {
+		int start = (int)ceil(thread_id * (double) N / P) /  (width << 1) * (width << 1);
+		int end = (int)min(ceil((thread_id + 1) * (double) N / P), N) / (width << 1) * (width << 1);
+		for (int i = start; i < end; i += (width << 1)) {
+			merge(v, i, i + width, i + (width << 1), vNew);
 		}
 		
 		pthread_barrier_wait(&barrier);
@@ -179,16 +170,16 @@ int main(int argc, char *argv[])
 	}
 
 	// merge sort clasic - trebuie paralelizat
-	int width, *aux;
-	for (width = 1; width < N; width = 2 * width) {
-		for (i = 0; i < N; i = i + 2 * width) {
-			merge(v, i, i + width, i + 2 * width, vNew);
-		}
+	// int width, *aux;
+	// for (width = 1; width < N; width = 2 * width) {
+	// 	for (i = 0; i < N; i = i + 2 * width) {
+	// 		merge(v, i, i + width, i + 2 * width, vNew);
+	// 	}
 
-		aux = v;
-		v = vNew;
-		vNew = aux;
-	}
+	// 	aux = v;
+	// 	v = vNew;
+	// 	vNew = aux;
+	// }
 
 	print();
 
