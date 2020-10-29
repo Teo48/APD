@@ -1,0 +1,20 @@
+OETS:
+    - secvential 100000 elemente: real	0m35,092s
+    - paralel 100000 elemente:
+                            - 2 thread-uri: real	0m11,797s
+                            - 4 thread-uri: real	0m9,803s
+                            - 8 thread-uri: real	0m7,831s
+
+SHEAR:
+    - secvential matrice 5000 x 5000: real	0m41,158s
+    - paralel matrice 5000 x 5000:
+                            - 2 thread-uri: real	0m20,691s
+                            - 4 thread-uri: real	0m14,770s
+                            - 8 thread-uri: real	0m12,751s
+
+MERGE:
+    - secvential N = 2 ^ 27: real	0m56,579s
+    - paralel N = 2 ^ 27:
+                            - 2 thread-uri: real	0m46,573s
+                            - 4 thread-uri: real	0m38,550s
+                            - 8 thread-uri: real	0m37,432s
