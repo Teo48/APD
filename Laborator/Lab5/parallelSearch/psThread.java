@@ -34,9 +34,13 @@ public class psThread extends Thread {
 		while (position == -1) {
 			if (v[left] == target) {
 				pos = left;
-			} else if (v[right] == target) {
+			}
+
+			if (v[right] == target) {
 				pos = right;
-			} else if (v[left] < target && target < v[right]) {
+			}
+
+			if (v[left] < target && target < v[right]) {
 				leftLimit = left;
 				rightLimit = right;
 			}

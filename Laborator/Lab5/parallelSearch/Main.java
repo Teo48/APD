@@ -18,8 +18,8 @@ public class Main {
 		barrier = new CyclicBarrier(P);
 		psThread [] threads = new psThread[P];
 		int [] v = new int [N];
-		System.out.println("Filling array with power of 2s");
-		Arrays.setAll(v, i -> (i << 1));
+		System.out.println("Filling array with multiples of 10...");
+		Arrays.setAll(v, i -> ((i << 3) + (i << 1)));
 		System.out.println("Done. Search for a number: ");
 		final int target = Integer.parseInt(br.readLine());
 
