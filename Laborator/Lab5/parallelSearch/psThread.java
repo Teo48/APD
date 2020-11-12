@@ -16,8 +16,8 @@ public class psThread extends Thread {
 	public psThread(int N, int P, int target, int leftLimit, int rightLimit, int threadId, int [] v) {
 		this.P = P;
 		this.target = target;
-		this.leftLimit = 0;
-		this.rightLimit = N - 1;
+		this.leftLimit = leftLimit;
+		this.rightLimit = rightLimit;
 		this.threadId = threadId;
 		this.v = v.clone();
 		left = threadId * (int)Math.ceil((double) N / P);

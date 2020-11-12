@@ -6,7 +6,6 @@ package oneProducerOneConsumer;
  */
 public class Consumer implements Runnable {
 	Buffer buffer;
-
 	Consumer(Buffer buffer) {
 		this.buffer = buffer;
 	}
