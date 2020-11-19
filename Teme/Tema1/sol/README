@@ -1,0 +1,41 @@
+Copyright echipa APD 2020 - scheletul de la care a pornit implementarea
+Copyright Teodor Matei 2020 - paralelizarea
+   ___       _ _                 ___  ___                _      _ _               _   
+  |_  |     | (_)         ___    |  \/  |               | |    | | |             | |  
+    | |_   _| |_  __ _   ( _ )   | .  . | __ _ _ __   __| | ___| | |__  _ __ ___ | |_ 
+    | | | | | | |/ _` |  / _ \/\ | |\/| |/ _` | '_ \ / _` |/ _ \ | '_ \| '__/ _ \| __|
+/\__/ / |_| | | | (_| | | (_>  < | |  | | (_| | | | | (_| |  __/ | |_) | | | (_) | |_ 
+\____/ \__,_|_|_|\__,_|  \___/\/ \_|  |_/\__,_|_| |_|\__,_|\___|_|_.__/|_|  \___/ \__|
+                                                                                      
+                                                                                      
+Implementarea temei a constat in paralelizarea celor doi algoritmi pentru
+generarea fractalilor: Julia si Mandelbrot.
+
+*Julia*
+-----
+Pentru algoritmul Julia(functia run_julia()) am ales sa parelelizez pe
+linii calculul multimii Julia. Am ajuns la aceasta abordare din urmatorul
+considerent: a[i][j] <==> *(*(a + i) + j), ceea ce implica un salt mai mic
+prin memorie efectuat de fiecare thread pentru accesarea unui element.
+De asemenea, am scos din implementarea din schelet apelul functiilor sqrt
+si pow, inlocuindu-le cu simple inmultiri(Am considerat ca overheadul creat 
+de apelul acestora pe stiva nu se justifica, daca am gresit in privinta
+asta let met know :D), respectiv %256 inlocuit cu &255
+(% implica un div/idiv, in vreme ce in al doilea caz se foloseste doar un and).
+
+Sincronizarea threadurilor am realizat-o cu ajutorul unei bariere.
+Inainte de a efectua transformarea in coordonate ecran este necesar ca
+toate elementele matricii sa fie calculate, deci thread-urile trebuie
+sincronizate. Similar si in cazul scrierii rezultatului in fisier.
+Fiind nevoie sa se scrie doar o singura data rezultatul, am alocat aceasta
+sarcina thread-ului cu IDul P-1.
+
+*Mandelbrot*
+-----------
+Idem Julia
+
+*Feedback*
+----------
+O tema interesanta si usoara, numai buna pentru a exersa sincronizarile si a
+nu speria.
+Kudos guys!
