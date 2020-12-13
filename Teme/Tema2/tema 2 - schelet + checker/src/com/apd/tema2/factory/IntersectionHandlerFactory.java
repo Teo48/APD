@@ -167,44 +167,6 @@ public class IntersectionHandlerFactory {
 
                     // Continuati de aici
 
-                    var waitingTime = ((SimpleStrictRoundAbout) Main.intersection).getWaitingTime();
-                    var laneId = car.getStartDirection();
-                    var carId = car.getId();
-
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("Car ").append(carId).append(" has reached the roundabout, now waiting...");
-                    System.out.println(sb.toString());
-                    try {
-                        SimpleStrictRoundAbout.barrier.await();
-                    } catch (BrokenBarrierException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
-                    try {
-                        SimpleStrictRoundAbout.semaphore[laneId].acquire();
-                        sb.setLength(0);
-                        sb = new StringBuilder();
-                        sb.append("Car ").append(carId).append(" has reached the roundabout from lane ").append(laneId);
-                        System.out.println(sb.toString());
-                        try {
-                            SimpleStrictRoundAbout.barrierStrictXRoundAbout.await();
-                        } catch (BrokenBarrierException | InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        sb.setLength(0);
-                        sb = new StringBuilder();
-                        sb.append("Car ").append(carId).append(" has entered the roundabout from lane ").append(laneId);
-                        System.out.println(sb.toString());
-                        sleep(waitingTime);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    sb.setLength(0);
-                    sb = new StringBuilder();
-                    sb.append("Car ").append(car.getId()).append(" has exited the roundabout after ").
-                            append(waitingTime).append(" seconds");
-                    System.out.println(sb.toString());
-                    SimpleStrictRoundAbout.semaphore[laneId].release();
                 }
             };
             case "priority_intersection" -> new IntersectionHandler() {
