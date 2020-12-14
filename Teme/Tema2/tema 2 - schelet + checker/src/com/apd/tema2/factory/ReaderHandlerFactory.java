@@ -5,10 +5,12 @@ import com.apd.tema2.entities.Pedestrians;
 import com.apd.tema2.entities.ReaderHandler;
 import com.apd.tema2.intersections.*;
 
+import javax.sql.rowset.CachedRowSet;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -114,7 +116,14 @@ public class ReaderHandlerFactory {
             case "crosswalk" -> new ReaderHandler() {
                 @Override
                 public void handle(final String handlerType, final BufferedReader br) throws IOException {
-                    
+                    String [] line = br.readLine().split("\\s+");
+                    Main.pedestrians = new Pedestrians(Integer.parseInt(line[0]), Integer.parseInt(line[1]));
+                    Crosswalk.carMessages = new ConcurrentHashMap<>();
+                    for (int i = 0 ; i < Main.carsNo ; ++i) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Car ").append(i).append(" has now red light");
+                        var prev = Crosswalk.carMessages.putIfAbsent(i, sb.toString());
+                    }
                 }
             };
             case "simple_maintenance" -> new ReaderHandler() {

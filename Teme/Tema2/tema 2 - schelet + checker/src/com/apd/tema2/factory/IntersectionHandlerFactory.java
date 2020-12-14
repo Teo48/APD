@@ -263,7 +263,44 @@ public class IntersectionHandlerFactory {
             case "crosswalk" -> new IntersectionHandler() {
                 @Override
                 public void handle(Car car) {
-                    
+                    var carId = car.getId();
+                    while (!Main.pedestrians.isFinished()) {
+                        if (!Main.pedestrians.isPass()) {
+                            var carMessage = Crosswalk.carMessages.getOrDefault(carId, "");
+                            if (carMessage.matches(".*\\bred\\b.*")) {
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("Car ").append(carId).append(" has now green light");
+                                Crosswalk.carMessages.replace(carId, sb.toString());
+                                System.out.println(sb.toString());
+                            }
+                        } else {
+                            var carMessage = Crosswalk.carMessages.getOrDefault(carId, "");
+                            if (carMessage.matches(".*\\bgreen\\b.*")) {
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("Car ").append(carId).append(" has now red light");
+                                Crosswalk.carMessages.replace(carId, sb.toString());
+                                System.out.println(sb.toString());
+                            }
+                        }
+                    }
+
+                    if (!Main.pedestrians.isPass()) {
+                        var carMessage = Crosswalk.carMessages.getOrDefault(carId, "");
+                        if (carMessage.matches(".*\\bred\\b.*")) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("Car ").append(carId).append(" has now green light");
+                            Crosswalk.carMessages.replace(carId, sb.toString());
+                            System.out.println(sb.toString());
+                        }
+                    } else {
+                        var carMessage = Crosswalk.carMessages.getOrDefault(carId, "");
+                        if (carMessage.matches(".*\\bgreen\\b.*")) {
+                            StringBuilder sb = new StringBuilder();
+                            sb.append("Car ").append(carId).append(" has now red light");
+                            Crosswalk.carMessages.replace(carId, sb.toString());
+                            System.out.println(sb.toString());
+                        }
+                    }
                 }
             };
             case "simple_maintenance" -> new IntersectionHandler() {
