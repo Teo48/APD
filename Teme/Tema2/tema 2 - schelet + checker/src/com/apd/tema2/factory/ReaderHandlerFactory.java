@@ -8,8 +8,10 @@ import com.apd.tema2.intersections.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Returneaza sub forma unor clase anonime implementari pentru metoda de citire din fisier.
@@ -84,13 +86,29 @@ public class ReaderHandlerFactory {
             case "simple_max_x_car_roundabout" -> new ReaderHandler() {
                 @Override
                 public void handle(final String handlerType, final BufferedReader br) throws IOException {
-
+                    String [] line = br.readLine().split("\\s+");
+                    Main.intersection = IntersectionFactory.getIntersection("simple_strict_1_car_roundabout");
+                    var numOfLanes = Integer.parseInt(line[0]);
+                    var waitingTime = Integer.parseInt(line[1]);
+                    var maxCars = Integer.parseInt(line[2]);
+                    ((SimpleStrictRoundAbout) Main.intersection).setNumberOfLanes(numOfLanes);
+                    ((SimpleStrictRoundAbout) Main.intersection).setWaitingTime(waitingTime);
+                    SimpleStrictRoundAbout.semaphore = new Semaphore[numOfLanes];
+                    Arrays.setAll(SimpleStrictRoundAbout.semaphore, i -> new Semaphore(maxCars));
                 }
             };
             case "priority_intersection" -> new ReaderHandler() {
                 @Override
                 public void handle(final String handlerType, final BufferedReader br) throws IOException {
-                    
+                    String [] line = br.readLine().split("\\s+");
+                    Main.intersection = IntersectionFactory.getIntersection("priority_intersection");
+                    var noCarsWithHighPriority = Integer.parseInt(line[0]);
+                    var noCarsWithLowPriority = Integer.parseInt(line[1]);
+                    ((PriorityIntersection) Main.intersection).setNoCarsHighPriority(noCarsWithHighPriority);
+                    ((PriorityIntersection) Main.intersection).setNoCarsLowPriority(noCarsWithLowPriority);
+                    PriorityIntersection.canPass = new AtomicBoolean(true);
+                    PriorityIntersection.carsWithHighPriority = new ArrayBlockingQueue<>(noCarsWithHighPriority);
+                    PriorityIntersection.carsWithLowPriority = new ArrayBlockingQueue<>(noCarsWithLowPriority);
                 }
             };
             case "crosswalk" -> new ReaderHandler() {

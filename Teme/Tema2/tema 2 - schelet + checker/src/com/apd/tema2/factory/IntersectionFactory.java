@@ -2,6 +2,7 @@ package com.apd.tema2.factory;
 
 import com.apd.tema2.Main;
 import com.apd.tema2.entities.Intersection;
+import com.apd.tema2.intersections.PriorityIntersection;
 import com.apd.tema2.intersections.SimpleIntersection;
 import com.apd.tema2.intersections.SimpleNRoundAbout;
 import com.apd.tema2.intersections.SimpleStrictRoundAbout;
@@ -19,6 +20,7 @@ public class IntersectionFactory {
         cache.put("simple_semaphore", new SimpleIntersection(Main.carsNo));
         cache.put("simple_n_round_about", new SimpleNRoundAbout());
         cache.put("simple_strict_1_car_roundabout", new SimpleStrictRoundAbout());
+        cache.put("priority_intersection", new PriorityIntersection());
     }
 
     public static Intersection getIntersection(String handlerType) {

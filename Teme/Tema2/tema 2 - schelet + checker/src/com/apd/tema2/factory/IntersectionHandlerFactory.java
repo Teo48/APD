@@ -52,8 +52,8 @@ public class IntersectionHandlerFactory {
                 @Override
                 public void handle(Car car) {
                     var waitingTime = ((SimpleNRoundAbout) Main.intersection).getRoundAboutWaitingTime();
+                    StringBuilder sb = new StringBuilder();
                     try {
-                        StringBuilder sb = new StringBuilder();
                         sb.append("Car ").append(car.getId()).append(" has reached the roundabout, now waiting...");
                         System.out.println(sb.toString());
                         SimpleNRoundAbout.barrier.await();
@@ -63,14 +63,16 @@ public class IntersectionHandlerFactory {
 
                     try {
                         SimpleNRoundAbout.semaphore.acquire();
-                        StringBuilder sb = new StringBuilder();
+                        sb.setLength(0);
+                        sb = new StringBuilder();
                         sb.append("Car ").append(car.getId()).append(" has entered the roundabout");
                         System.out.println(sb.toString());
                         sleep(waitingTime);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    StringBuilder sb = new StringBuilder();
+                    sb.setLength(0);
+                    sb = new StringBuilder();
                     sb.append("Car ").append(car.getId()).append(" has exited the roundabout after ").
                             append(waitingTime).append(" seconds");
                     System.out.println(sb.toString());
@@ -83,9 +85,9 @@ public class IntersectionHandlerFactory {
                 public void handle(Car car) {
                     var waitingTime = ((SimpleStrictRoundAbout) Main.intersection).getWaitingTime();
                     var laneId = car.getStartDirection();
+                    StringBuilder sb = new StringBuilder();
                     try {
                         SimpleStrictRoundAbout.semaphore[laneId].acquire();
-                        StringBuilder sb = new StringBuilder();
                         sb.append("Car ").append(car.getId()).append(" has reached the roundabout");
                         System.out.println(sb.toString());
 
@@ -104,7 +106,8 @@ public class IntersectionHandlerFactory {
                         e.printStackTrace();
                     }
 
-                    StringBuilder sb = new StringBuilder();
+                    sb.setLength(0);
+                    sb = new StringBuilder();
                     sb.append("Car ").append(car.getId()).append(" has exited the roundabout after ").
                             append(waitingTime).append(" seconds");
                     System.out.println(sb.toString());
@@ -164,8 +167,30 @@ public class IntersectionHandlerFactory {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } // NU MODIFICATI
+                    var waitingTime = ((SimpleStrictRoundAbout) Main.intersection).getWaitingTime();
+                    var laneId = car.getStartDirection();
+                    var carId = car.getId();
 
-                    // Continuati de aici
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("Car ").append(carId).append(" has reached the roundabout from lane ").append(laneId);
+                    System.out.println(sb.toString());
+
+                    try {
+                        SimpleStrictRoundAbout.semaphore[laneId].acquire();
+                        sb.setLength(0);
+                        sb = new StringBuilder();
+                        sb.append("Car ").append(carId).append(" has entered the roundabout from lane ").append(laneId);
+                        System.out.println(sb.toString());
+                        sleep(waitingTime);
+                    } catch(InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    sb.setLength(0);
+                    sb = new StringBuilder();
+                    sb.append("Car ").append(car.getId()).append(" has exited the roundabout after ").
+                            append(waitingTime).append(" seconds");
+                    System.out.println(sb.toString());
+                    SimpleStrictRoundAbout.semaphore[laneId].release();
 
                 }
             };
@@ -180,7 +205,59 @@ public class IntersectionHandlerFactory {
                         e.printStackTrace();
                     } // NU MODIFICATI
 
+                    var carId = car.getId();
+                    StringBuilder sb = new StringBuilder();
                     // Continuati de aici
+                    if (car.getPriority() > 1) {
+                        try {
+                            sb.append("Car ").append(carId).append(" with high priority has entered the intersection");
+                            System.out.println(sb.toString());
+                            PriorityIntersection.carsWithHighPriority.put(carId);
+                            sleep(2000);
+                            var removedCar = PriorityIntersection.carsWithHighPriority.take();
+                            sb.setLength(0);
+                            sb = new StringBuilder();
+                            sb.append("Car ").append(carId).append(" with high priority has exited the intersection");
+                            System.out.println(sb.toString());
+                            if (!PriorityIntersection.carsWithHighPriority.isEmpty()) {
+                                PriorityIntersection.canPass.set(false);
+                            } else {
+                                PriorityIntersection.canPass.set(true);
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        sb.setLength(0);
+                        sb = new StringBuilder();
+                        sb.append("Car ").append(carId).append(" with low priority is trying to enter the intersection...");
+                        System.out.println(sb.toString());
+                        try {
+                            PriorityIntersection.carsWithLowPriority.put(carId);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        if (!PriorityIntersection.carsWithHighPriority.isEmpty()) {
+                            PriorityIntersection.canPass.set(false);
+                        } else {
+                            PriorityIntersection.canPass.set(true);
+                        }
+
+                        while (!PriorityIntersection.canPass.compareAndSet(true, true)) {}
+
+                        try {
+                            synchronized (PriorityIntersection.lock) {
+                                var removedCar = PriorityIntersection.carsWithLowPriority.take();
+                                sb.setLength(0);
+                                sb = new StringBuilder();
+                                sb.append("Car ").append(removedCar).append(" with low priority has entered the intersection");
+                                System.out.println(sb.toString());
+                           }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             };
             case "crosswalk" -> new IntersectionHandler() {
