@@ -11,7 +11,7 @@ import java.util.Map;
  * Prototype Factory: va puteti crea cate o instanta din fiecare tip de implementare de Intersection.
  */
 public class IntersectionFactory {
-    private static Map<String, Intersection> cache = new HashMap<>();
+    private static final Map<String, Intersection> cache = new HashMap<>();
 
     static {
         cache.put("simple_semaphore", new SimpleIntersection(Main.carsNo));
@@ -19,6 +19,8 @@ public class IntersectionFactory {
         cache.put("simple_strict_1_car_roundabout", new SimpleStrictRoundAbout());
         cache.put("priority_intersection", new PriorityIntersection());
         cache.put("crosswalk", new Crosswalk(Main.carsNo));
+        cache.put("simple_maintenance", new SimpleMaintenance());
+        cache.put("railroad", new Railroad(Main.carsNo));
     }
 
     public static Intersection getIntersection(String handlerType) {

@@ -7,9 +7,9 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 
 public class SimpleStrictRoundAbout implements Intersection {
-	public static Semaphore[] semaphore;
-	public static CyclicBarrier barrier;
-	public static CyclicBarrier barrierStrictXRoundAbout;
+	public Semaphore[] semaphore;
+	public CyclicBarrier barrier;
+	public CyclicBarrier barrierStrictXRoundAbout;
 	private int numberOfLanes;
 	private int waitingTime;
 	private int maxPermits;

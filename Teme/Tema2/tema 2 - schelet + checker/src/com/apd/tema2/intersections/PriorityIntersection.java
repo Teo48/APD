@@ -6,10 +6,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PriorityIntersection implements Intersection {
-	public static ArrayBlockingQueue<Integer> carsWithLowPriority;
-	public static ArrayBlockingQueue<Integer> carsWithHighPriority;
-	public static final Object lock = new Object();
-	public static AtomicBoolean canPass;
+	public ArrayBlockingQueue<Integer> carsWithLowPriority;
+	public ArrayBlockingQueue<Integer> carsWithHighPriority;
+	public final Object lock = new Object();
+	public AtomicBoolean canPass;
 	private int noCarsLowPriority;
 	private int noCarsHighPriority;
 

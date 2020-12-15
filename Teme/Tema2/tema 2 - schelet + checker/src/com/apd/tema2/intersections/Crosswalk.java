@@ -5,16 +5,15 @@ import com.apd.tema2.entities.Intersection;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Crosswalk implements Intersection {
-	public static ConcurrentHashMap<Integer, String> carMessages;
+	public enum lightColor {RED_LIGHT, GREEN_LIGHT, NO_LIGHT};
+	public ConcurrentHashMap<Integer, lightColor> carMessages;
 	private int noCars;
 
 	public Crosswalk(int noCars) {
 		this.noCars = noCars;
 		carMessages = new ConcurrentHashMap<>();
 		for (int i = 0 ; i < noCars ; ++i) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Car ").append(i).append(" has now green light");
-			var prev = carMessages.putIfAbsent(i, sb.toString());
+			var prev = carMessages.putIfAbsent(i, lightColor.RED_LIGHT);
 		}
 	}
 

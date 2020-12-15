@@ -51,8 +51,8 @@ public class ReaderHandlerFactory {
                     ((SimpleNRoundAbout) Main.intersection).setNoCars(Main.carsNo);
                     ((SimpleNRoundAbout) Main.intersection).setMaxNumberOfCars(maxCars);
                     ((SimpleNRoundAbout) Main.intersection).setRoundAboutWaitingTime(waitingTime);
-                    SimpleNRoundAbout.semaphore = new Semaphore(maxCars);
-                    SimpleNRoundAbout.barrier = new CyclicBarrier(Main.carsNo);
+                    ((SimpleNRoundAbout) Main.intersection).semaphore = new Semaphore(maxCars);
+                    ((SimpleNRoundAbout) Main.intersection).barrier = new CyclicBarrier(Main.carsNo);
                 }
             };
             case "simple_strict_1_car_roundabout" -> new ReaderHandler() {
@@ -64,9 +64,9 @@ public class ReaderHandlerFactory {
                     var waitingTime = Integer.parseInt(line[1]);
                     ((SimpleStrictRoundAbout) Main.intersection).setNumberOfLanes(numOfLanes);
                     ((SimpleStrictRoundAbout) Main.intersection).setWaitingTime(waitingTime);
-                    SimpleStrictRoundAbout.semaphore = new Semaphore[numOfLanes];
-                    Arrays.setAll(SimpleStrictRoundAbout.semaphore, i -> new Semaphore(1));
-                    SimpleStrictRoundAbout.barrier = new CyclicBarrier(numOfLanes);
+                    ((SimpleStrictRoundAbout) Main.intersection).semaphore = new Semaphore[numOfLanes];
+                    Arrays.setAll(((SimpleStrictRoundAbout) Main.intersection).semaphore, i -> new Semaphore(1));
+                    ((SimpleStrictRoundAbout) Main.intersection).barrier = new CyclicBarrier(numOfLanes);
                 }
             };
             case "simple_strict_x_car_roundabout" -> new ReaderHandler() {
@@ -79,10 +79,11 @@ public class ReaderHandlerFactory {
                     var maxCars = Integer.parseInt(line[2]);
                     ((SimpleStrictRoundAbout) Main.intersection).setNumberOfLanes(numOfLanes);
                     ((SimpleStrictRoundAbout) Main.intersection).setWaitingTime(waitingTime);
-                    SimpleStrictRoundAbout.semaphore = new Semaphore[numOfLanes];
-                    Arrays.setAll(SimpleStrictRoundAbout.semaphore, i -> new Semaphore(maxCars));
-                    SimpleStrictRoundAbout.barrier = new CyclicBarrier(Main.carsNo);
-                    SimpleStrictRoundAbout.barrierStrictXRoundAbout = new CyclicBarrier(maxCars * numOfLanes);
+                    ((SimpleStrictRoundAbout) Main.intersection).semaphore = new Semaphore[numOfLanes];
+                    Arrays.setAll(((SimpleStrictRoundAbout) Main.intersection).semaphore, i -> new Semaphore(maxCars));
+                    ((SimpleStrictRoundAbout) Main.intersection).barrier = new CyclicBarrier(Main.carsNo);
+                    ((SimpleStrictRoundAbout) Main.intersection).barrierStrictXRoundAbout =
+                            new CyclicBarrier(maxCars * numOfLanes);
                 }
             };
             case "simple_max_x_car_roundabout" -> new ReaderHandler() {
@@ -95,8 +96,8 @@ public class ReaderHandlerFactory {
                     var maxCars = Integer.parseInt(line[2]);
                     ((SimpleStrictRoundAbout) Main.intersection).setNumberOfLanes(numOfLanes);
                     ((SimpleStrictRoundAbout) Main.intersection).setWaitingTime(waitingTime);
-                    SimpleStrictRoundAbout.semaphore = new Semaphore[numOfLanes];
-                    Arrays.setAll(SimpleStrictRoundAbout.semaphore, i -> new Semaphore(maxCars));
+                    ((SimpleStrictRoundAbout) Main.intersection).semaphore = new Semaphore[numOfLanes];
+                    Arrays.setAll(((SimpleStrictRoundAbout) Main.intersection).semaphore, i -> new Semaphore(maxCars));
                 }
             };
             case "priority_intersection" -> new ReaderHandler() {
@@ -108,9 +109,9 @@ public class ReaderHandlerFactory {
                     var noCarsWithLowPriority = Integer.parseInt(line[1]);
                     ((PriorityIntersection) Main.intersection).setNoCarsHighPriority(noCarsWithHighPriority);
                     ((PriorityIntersection) Main.intersection).setNoCarsLowPriority(noCarsWithLowPriority);
-                    PriorityIntersection.canPass = new AtomicBoolean(true);
-                    PriorityIntersection.carsWithHighPriority = new ArrayBlockingQueue<>(noCarsWithHighPriority);
-                    PriorityIntersection.carsWithLowPriority = new ArrayBlockingQueue<>(noCarsWithLowPriority);
+                    ((PriorityIntersection) Main.intersection).canPass = new AtomicBoolean(true);
+                    ((PriorityIntersection) Main.intersection).carsWithHighPriority = new ArrayBlockingQueue<>(noCarsWithHighPriority);
+                    ((PriorityIntersection) Main.intersection).carsWithLowPriority = new ArrayBlockingQueue<>(noCarsWithLowPriority);
                 }
             };
             case "crosswalk" -> new ReaderHandler() {
@@ -118,18 +119,23 @@ public class ReaderHandlerFactory {
                 public void handle(final String handlerType, final BufferedReader br) throws IOException {
                     String [] line = br.readLine().split("\\s+");
                     Main.pedestrians = new Pedestrians(Integer.parseInt(line[0]), Integer.parseInt(line[1]));
-                    Crosswalk.carMessages = new ConcurrentHashMap<>();
+                    Main.intersection = IntersectionFactory.getIntersection("crosswalk");
+                    ((Crosswalk) Main.intersection).carMessages = new ConcurrentHashMap<>();
                     for (int i = 0 ; i < Main.carsNo ; ++i) {
-                        StringBuilder sb = new StringBuilder();
-                        sb.append("Car ").append(i).append(" has now red light");
-                        var prev = Crosswalk.carMessages.putIfAbsent(i, sb.toString());
+                        var prev = ((Crosswalk) Main.intersection).carMessages.
+                                putIfAbsent(i, Crosswalk.lightColor.RED_LIGHT);
                     }
                 }
             };
             case "simple_maintenance" -> new ReaderHandler() {
                 @Override
                 public void handle(final String handlerType, final BufferedReader br) throws IOException {
-                    
+                    String [] line = br.readLine().split("\\s+");
+                    Main.intersection = IntersectionFactory.getIntersection("simple_maintenance");
+                    ((SimpleMaintenance) Main.intersection).semaphore = new Semaphore[2];
+                    ((SimpleMaintenance) Main.intersection).semaphore[0] = new Semaphore(Integer.parseInt(line[0]));
+                    ((SimpleMaintenance) Main.intersection).semaphore[1] = new Semaphore(0);
+                    ((SimpleMaintenance) Main.intersection).barrier = new CyclicBarrier(Integer.parseInt(line[0]));
                 }
             };
             case "complex_maintenance" -> new ReaderHandler() {
@@ -141,7 +147,7 @@ public class ReaderHandlerFactory {
             case "railroad" -> new ReaderHandler() {
                 @Override
                 public void handle(final String handlerType, final BufferedReader br) throws IOException {
-                    
+                    Main.intersection = IntersectionFactory.getIntersection("railroad");
                 }
             };
             default -> null;

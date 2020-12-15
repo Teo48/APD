@@ -6,8 +6,8 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 
 public class SimpleNRoundAbout implements Intersection {
-	public static Semaphore semaphore;
-	public static CyclicBarrier barrier;
+	public Semaphore semaphore;
+	public CyclicBarrier barrier;
 	private int roundAboutWaitingTime;
 	private int maxNumberOfCars;
 	private int noCars;
@@ -15,11 +15,11 @@ public class SimpleNRoundAbout implements Intersection {
 	public SimpleNRoundAbout() {}
 
 	public SimpleNRoundAbout(int roundAboutWaitingTime, int maxNumberOfCars, int noCars) {
+		semaphore = new Semaphore(maxNumberOfCars);
+		barrier = new CyclicBarrier(noCars);
 		this.roundAboutWaitingTime = roundAboutWaitingTime;
 		this.maxNumberOfCars = maxNumberOfCars;
 		this.noCars = noCars;
-		semaphore = new Semaphore(maxNumberOfCars);
-		barrier = new CyclicBarrier(noCars);
 	}
 
 	public int getMaxNumberOfCars() {
