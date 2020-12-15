@@ -7,6 +7,7 @@ import com.apd.tema2.utils.Constants;
 
 import java.security.cert.CRLSelector;
 import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.lang.Thread.sleep;
 
@@ -329,9 +330,99 @@ public class IntersectionHandlerFactory {
             case "complex_maintenance" -> new IntersectionHandler() {
                 @Override
                 public void handle(Car car) {
-                    
+                    var complexM = (ComplexMaintenance) IntersectionFactory.getIntersection("complex_maintenance");
+                    var carId = car.getId();
+                    var carLane = car.getStartDirection();
+                    synchronized (ComplexMaintenance.lock) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Car ").append(carId).append(" has come from the lane number ").append(carLane);
+                        System.out.println(sb.toString());
+                        try {
+                            complexM.oldLaneCars[carLane].put(car);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    try {
+                        complexM.barrier.await();
+                    } catch (BrokenBarrierException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (carId == 0) {
+                        for (int i = 0 ; i < complexM.getNoLanes() ; ++i) {
+                            var aux =
+                                    complexM.newOldLanesMap.get(complexM.newLanes[i]);
+                            try {
+                                aux.put(complexM.oldLaneCars[i]);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            complexM.newOldLanesMap.put(complexM.newLanes[i], aux);
+                        }
+                    }
+
+                    try {
+                        complexM.barrier.await();
+                    } catch (BrokenBarrierException | InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    synchronized (ComplexMaintenance.lock) {
+                        var currentLane = complexM.newOldLanesMap.get(complexM.newLanes[carLane]);
+                        while (!currentLane.isEmpty()) {
+                            LinkedBlockingQueue<Car> aux = null;
+                            try {
+                                aux = currentLane.take();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+
+                            int cnt;
+
+                            if (aux.size() < complexM.getMaxCars()) {
+                                cnt = aux.size();
+                            } else {
+                                cnt = complexM.getMaxCars();
+                            }
+
+                            int laneID = 0;
+                            while (cnt-- > 0) {
+                                Car temp = null;
+                                try {
+                                    temp = aux.take();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                StringBuilder sb = new StringBuilder();
+                                laneID = temp.getStartDirection();
+                                sb.append("Car ").append(temp.getId()).append(" from the lane ").append(temp.getStartDirection()).
+                                        append(" has entered lane number ").append(complexM.newLanes[temp.getStartDirection()]);
+                                System.out.println(sb.toString());
+                            }
+
+                            if (aux.size() > 0) {
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("The initial lane ").append(laneID).
+                                        append(" has no permits and is moved to the back of the new lane queue");
+                                try {
+                                    currentLane.put(aux);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                System.out.println(sb.toString());
+                            } else {
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("The initial lane ").append(laneID).
+                                        append(" has been emptied and removed from the new lane queue");
+                                System.out.println(sb.toString());
+                            }
+                        }
+                    }
                 }
             };
+
             case "railroad" -> new IntersectionHandler() {
                 @Override
                 public void handle(Car car) {
