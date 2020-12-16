@@ -3,9 +3,7 @@ package com.apd.tema2.factory;
 import com.apd.tema2.Main;
 import com.apd.tema2.entities.*;
 import com.apd.tema2.intersections.*;
-import com.apd.tema2.utils.Constants;
 
-import java.security.cert.CRLSelector;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -32,11 +30,15 @@ public class IntersectionHandlerFactory {
         // unmarked intersection
         // cars racing
         return switch (handlerType) {
+            /*
+            *  Se obtine o instanta de simpleintersection cu ajutorul factory-ului.
+            *  Masinile afiseaza mesajul, se realizeaza sincronizarea si se afiseaza plecarea de la semafor.
+            * */
             case "simple_semaphore" -> new IntersectionHandler() {
                 @Override
                 public void handle(Car car) {
                     try {
-                        var simpleSemaphore = (SimpleIntersection) IntersectionFactory.getIntersection("simple_semaphore");;
+                        var simpleSemaphore = (SimpleIntersection) IntersectionFactory.getIntersection("simple_semaphore");
                         StringBuilder sb = new StringBuilder();
                         sb.append("Car ").append(car.getId()).append(" has reached the semaphore, now waiting...");
                         System.out.println(sb.toString());
@@ -51,6 +53,11 @@ public class IntersectionHandlerFactory {
                     }
                 }
             };
+
+            /*
+            * Se obtine o instanta de SimpleNRoundAbout.
+            * Se asteapta ca toate masinile sa ajunga la giratoriu, urmand ca mai apoi sa dea acquire pe semafor.
+            * */
             case "simple_n_roundabout" -> new IntersectionHandler() {
                 @Override
                 public void handle(Car car) {
@@ -201,6 +208,12 @@ public class IntersectionHandlerFactory {
                     simpleMaxXCarRoundabout.semaphore[laneId].release();
                 }
             };
+            /**
+             * Se verifica prioritatea masinii curente.
+             * Daca este > 1 se adauga in lista masinilor cu prioritate, iar cele fara vor fi anuntate
+             * ca nu pot intra intersectie si vor fi nevoite sa faca busy waiting pana cand in coada
+             * celor cu prioritate nu vor mai exista masini.
+             * */
             case "priority_intersection" -> new IntersectionHandler() {
                 @Override
                 public void handle(Car car) {
@@ -257,6 +270,13 @@ public class IntersectionHandlerFactory {
                     }
                 }
             };
+            /**
+             * Cat timp thread-urile pietonilor se executa, se verifica daca acestia au sau nu
+             * drept de trecere pentru ca masinile sa afiseze mesajele corespunzatoare. Pentru evitarea duplicatelor
+             * si a realiza afisarea alternanta mesajul anterior este stocat intr-un hashmap pentru fiecare masina.
+             * La final, dupa ce thread-urile isi incheie executia se mai face o verificare pentru afisarea
+             * mesajelor.
+             * */
             case "crosswalk" -> new IntersectionHandler() {
                 @Override
                 public void handle(Car car) {
@@ -301,6 +321,10 @@ public class IntersectionHandlerFactory {
                     }
                 }
             };
+            /**
+             * Se folosesc 2 semafoare, unul cu X, altul cu 0 permisii. In momentul in care s-au dat X acquire()-uri
+             * pe un sens, se vor da X release-uri pe sensul opus.
+             * */
             case "simple_maintenance" -> new IntersectionHandler() {
                 @Override
                 public void handle(Car car) {
@@ -327,6 +351,15 @@ public class IntersectionHandlerFactory {
                     simpleMaintenance.semaphore[carLane ^ 1].release();
                 }
             };
+            /**
+             * Se stocheaza pentru fiecare lane vechi cate o lista cu masinile asociate.
+             * Unui singur thread ii revine responsabilitatea de a mapa lane-urilor noi cu lista de
+             * lane-uri vechi.
+             * Cat timp exista mai exista lane-uri vechi ce au masini, extrag lista cu lane-urile vechi,
+             * extrag din aceasta cate un lane, iar din lane extrag x sau size-ul ei masini. In cazul in
+             * care lane-ulinca mai are masini neredirectionate, va fi adaugat la finalul
+             * cozii, altfel redirectionarea s-a incheiat.
+             * */
             case "complex_maintenance" -> new IntersectionHandler() {
                 @Override
                 public void handle(Car car) {
@@ -379,13 +412,7 @@ public class IntersectionHandlerFactory {
                                 e.printStackTrace();
                             }
 
-                            int cnt;
-
-                            if (aux.size() < complexM.getMaxCars()) {
-                                cnt = aux.size();
-                            } else {
-                                cnt = complexM.getMaxCars();
-                            }
+                            int cnt = Math.min(aux.size(), complexM.getMaxCars());
 
                             int laneID = 0;
                             while (cnt-- > 0) {
@@ -423,6 +450,10 @@ public class IntersectionHandlerFactory {
                 }
             };
 
+            /**
+             * Se retin masinile intr-o lista sincronizata, se asteapta la bariera trecerea trenului,
+             * iar apoi masinile sunt extrase pe rand in ordinea intrarii.
+             * */
             case "railroad" -> new IntersectionHandler() {
                 @Override
                 public void handle(Car car) {

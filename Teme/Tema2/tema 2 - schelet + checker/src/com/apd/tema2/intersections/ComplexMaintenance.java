@@ -8,6 +8,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/***
+ * @author teo
+ * newOldLanesMap - Maparea Lane Nou : Lista<Lane-uri vechi>, Lane-uri vechi : masini
+ * oldLaneCars - Retine o lista cu masinile de pe fiecare lane vechi
+ * newLanes - Face maparea intre lane-urile vechi si cele noi, util pentru
+ * 				a vedea din ce lane nou va face parte o masina
+ * */
+
 public class ComplexMaintenance implements Intersection {
 	private int maxCars;
 	private int noLanes;
@@ -25,6 +33,7 @@ public class ComplexMaintenance implements Intersection {
 		this.noLanes = noLanes;
 		this.noNewLanes = noNewLanes;
 	}
+
 	public void init() {
 		barrier = new CyclicBarrier(Main.carsNo);
 		newLanes = new int[noLanes];

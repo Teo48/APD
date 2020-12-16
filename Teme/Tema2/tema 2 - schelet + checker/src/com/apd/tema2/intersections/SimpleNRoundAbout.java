@@ -5,6 +5,10 @@ import com.apd.tema2.entities.Intersection;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 
+/***
+ * @author teo
+ * */
+
 public class SimpleNRoundAbout implements Intersection {
 	public Semaphore semaphore;
 	public CyclicBarrier barrier;

@@ -5,6 +5,12 @@ import com.apd.tema2.entities.Intersection;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/***
+ * @author teo
+ * carsWithHighPriority - Lista masinilor cu prioritate
+ * carsWithLowPriority - Lista masinilor fara prioriate
+ * canPass - Spune daca o masina fara prioriate poate intra in intersectie
+ * */
 public class PriorityIntersection implements Intersection {
 	public ArrayBlockingQueue<Integer> carsWithLowPriority;
 	public ArrayBlockingQueue<Integer> carsWithHighPriority;

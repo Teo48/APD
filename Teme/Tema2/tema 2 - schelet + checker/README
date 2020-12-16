@@ -1,0 +1,120 @@
+Copyright Gabi Tuculina(Thx for skel) + Teodor Matei 333 CA - 2020
+ _____          __  __ _        _____ _                 _       _             
+|_   _|        / _|/ _(_)      /  ___(_)               | |     | |            
+  | |_ __ __ _| |_| |_ _  ___  \ `--. _ _ __ ___  _   _| | __ _| |_ ___  _ __ 
+  | | '__/ _` |  _|  _| |/ __|  `--. \ | '_ ` _ \| | | | |/ _` | __/ _ \| '__|
+  | | | | (_| | | | | | | (__  /\__/ / | | | | | | |_| | | (_| | || (_) | |   
+  \_/_|  \__,_|_| |_| |_|\___| \____/|_|_| |_| |_|\__,_|_|\__,_|\__\___/|_|   
+                                                                              
+    __            |\
+ __/__\___________| \_
+|   ___    |  ,|   ___`-.
+|  /   \   |___/  /   \  `-.
+|_| (O) |________| (O) |____|
+   \___/          \___/
+
+Detalii implementare:
+
+***Task 1***
+- Doar am afisat mesajele din enunt si sincronizat thread-urile cu o bariera.
+	Nimic fancy aici.
+
+***Task 2***
+- Masinile ajung la sensul giratoriu unde sunt oprite de bariera, iar apoi
+	pentru a respecta constrangerea cu maximum N masini pot intra in giratoriu
+	am folosit un semafor cu N permisii.
+	Si din nou, mesajele aferente.
+
+***Task 3***
+- Am abordat o varianta generalizata pe care am folosit-o si la task-urile 4 si 
+	5.
+	Si anume, am utilizat un array de semafoare cu X permisii, pentru acest task
+	fiecare semafor avea o singura permisie, iar fiecare semafor corespunde
+	unui lane. Nefiind relevant daca in giratoriu ajung masini in timp ce altele
+	intra sau ies, n-am avut nevoie de folosirea barierelor.
+
+***Task 4***
+- Generalizarea lui 3, am folosit aceeasi clasa SimpleStrictRoundAbout, doar ca
+	de aceasta data am modificat permisiile semafoarelor la X. Cum conteaza ca 
+	toate masinile sa ajung la giratoriu am folosit o bariera pentru a
+	indeplini conditia. De asemenea, pentru a respecta constrangerea ca o runda
+	noua nu poate incepe pana cand nu au iesit toate masinile curente
+	am refolosit aceeasi bariera.
+
+***Task 5***
+- Logica asemanatoare cu task-ul anterior, singura diferenta fiind facuta de 
+	utilizare barierelor pentru sincrozare la 4. Astfel, am pastrat logica
+	de la task-ul 4 si am inlaturat barierele.
+	*Ayaye* am zis ca de la task-ul 3 am rezolvat in lant 4 si 5 :D
+
+***Task 6***
+- Pentru acest task am folosit cozi sincronizate pentru masinile cu prioritate,
+	respectiv fara. Daca masina curenta are prioritate > 1, atunci ea
+	este adaugata in coada corespunzatoare. Altfel, se adauga in coada pentru
+	cele fara prioritate si se verifica daca avem sau nu masini cu prioritate
+	in intersctie. Daca avem, cele fara prioritate fac busy waiting(ele nu pot
+	intra pana cand nu au iesit cele cu prioritate), altfel parasesc intersctia.
+
+***Task 7***
+- Am utilizat metodele din clasa Pedestrians. Cat timp pietonii nu s-au
+	plictisit de mers(poate au intrat pe linia de BMW), verific daca
+	masinile pot trece sau nu. Pentru a evita mesajele duplicate
+	am folosit un hashmap concurent, in care cheia reprezenta ID-ul
+	masinii, iar valoarea un enum asociat luminii rosii/verzi.
+	Astfel, acesta juca rol de switch.
+
+***Task 8***
+- Pentru a respecta circulatia alternanta am utilizat doua semafoare,
+	cu X, respectiv 0 permisii. Dau acquire pe cele X permisii, si
+	blochez thread-urile cu o bariera(Nu vrem ca vreunul sa dea release
+	inainte, dorim ca exact X masini sa treaca). Apoi, nu ramane de facut
+	decat release pe semaforul de pe sensul opus.
+
+***Task 9***
+- Pentru acest task am folosit un hashmap concurent ce are drept cheie
+	id-ul noilor lane-uri, iar drept valori o coada de cozi in felul
+	urmator:
+	ID: Queue<Queue<Car>>
+	Coada exterioara, tine evidenta lane-urilor vechi, iar fiecare coada
+	interioara retine masinile asociate ei.
+
+	In clasa ComplexMaintenance precalculez noile lane-uri, implicit
+	din ce vechi lane-uri sunt formate si retin in vectorul newLanes
+	ID-ul lane-ului nou din care vor face parte masinile.
+
+	In run()-ul propriu-zis retin pentru fiecare lane cate o coada cu
+	masinile asociate, mai apoi aloc unui singur thread 
+	responsabilitatea de a baga aceste cozi in hashmap.
+
+	Mai apoi, cat timp mai exista lane-uri vechi ce au masini, extrag
+	lista cu lane-urile vechi, extrag din aceasta cate un lane, iar
+	din lane extrag x sau size-ul ei masini. In cazul in care lane-ul
+	inca mai are masini neredirectionate, va fi adaugat la finalul
+	cozii, altfel redirectionarea s-a incheiat.
+
+***Task 10***
+- Retin intr-o coada sincronizata masinile ce ajung la bariera.
+	Aloc unui singur thread responsabilitatea de a afisa mesajul
+	legat de trecerea trenului si extrag masinile in ordinea
+	in care au venit.
+
+PS: Stiu ca o sa ma injurati ca am folosit StringBuilder() in loc
+sout() direct. Motivul pentru care am facut asta este urmatorul:
+La fiecare + din sout se creeaza o instanta noua de String, in
+vreme ce in cazul unui StringBuilder(), care la sfarsitul zilei,
+e un array redimensionabil, se evita creare de instante noi la fiecare
+append si prin urmare evit folosirea inutila a memoriei. Stiu ca 
+unele versiune de Java sunt destul de inteligente si traduc automat + -ul 
+intre 2, maxim 3 string-uri in apel intern de StringBuilder().
+Am testat pe Java 11 si am vazut in bytecode ca se intampla acest lucru,
+doar ca surpriza pe Java 14 si 15 am observat 2 instante de String.
+Nu am nici cea mai vaga idee de ce comportamentul era diferit, nu am
+gasit pe nicaieri un raspuns pertinent.
+
+PPS: Nu am folosit alte DP-uri in afara de cele din schelet din simplul fapt
+ca am scris destul de putin cod pentru fiecare task. Doar mi-am creat clase ce
+implementau intersection si am folosit factory-ul pentru intersectii.
+
+***FEEDBACK***
+Cu bune, cu rele, tema a fost interesanta.
+

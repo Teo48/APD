@@ -4,6 +4,12 @@ import com.apd.tema2.entities.Intersection;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/***
+ * @author teo
+ * carMessages - Face maparea ID Masina : culoarea de la semafor
+ * 					Initial toate au culoarea rosie
+ */
+
 public class Crosswalk implements Intersection {
 	public enum lightColor {RED_LIGHT, GREEN_LIGHT, NO_LIGHT};
 	public ConcurrentHashMap<Integer, lightColor> carMessages;

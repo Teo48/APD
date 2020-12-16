@@ -6,6 +6,10 @@ import java.util.Arrays;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 
+/***
+ * @author teo
+ * */
+
 public class SimpleStrictRoundAbout implements Intersection {
 	public Semaphore[] semaphore;
 	public CyclicBarrier barrier;
