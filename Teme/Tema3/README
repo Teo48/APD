@@ -1,0 +1,57 @@
+Copyright Teodor Matei 333CA - 2020
+            _____         _                  
+           |_   _|       | |                 
+             | | _____  _| |_                
+             | |/ _ \ \/ / __|               
+             | |  __/>  <| |_                
+             \_/\___/_/\_\\__|                                                    
+______                                       
+| ___ \                                      
+| |_/ / __ ___   ___ ___  ___ ___  ___  _ __ 
+|  __/ '__/ _ \ / __/ _ \/ __/ __|/ _ \| '__|
+| |  | | | (_) | (_|  __/\__ \__ \ (_) | |   
+\_|  |_|  \___/ \___\___||___/___/\___/|_|
+
+Versiune de compilator folosita: g++ 8.4.0
+Versiune de C++: 11
+
+Logica implementarii este urmatoarea:
+
+Nodul master deschide 4 thread-uri responsabile de citirea
+fisierului. Fiecare thread citeste si retine doar paragrafele 
+asociate lui, iar dupa terminarea citirii va trimite catre workerul
+asociat cate un paragraf pe rand pentru prelucrare. Workerii
+pornesc cate un thread responsabil pentru primirea paragrafelor,
+calculeaza numarul de linii al unui paragraf si pornesc la randul
+lor alte P - 1 thread-uri cu verificarea sa fie mereu minim 1 thread
+(pe langa cel responsabil de receptie). Odata pornite thread-urile
+se realizeaza impartirea liniilor dupa urmatoarea formula:
+start = id * NR_MAXIM_LINII_PER_THREAD(20) + linii_prelucrate
+end = min((id + 1)* NR_MAXIM_LINII_PER_THREAD(20)), numar_total_linii)
+Cat timp numarul de linii prelucrate este mai mic decat numarul total,
+se prelucreaza in continuare. Presupun ca la finalul unei runde de
+procesare toate thread-urile vor fi procesat (P - 1) * 20 linii, chiar
+daca in realitate poate nu se intampla asta(i.e am 41 de linii ramase
+si 7 thread-uri disponibile, se vor ocupa de prelucrare doar thread-urile
+ce au start-ul mai mic decat numarul total). Dupa terminarea procesarii,
+un singur thread trimite MASTER-ului paragraful procesat ce-l va stoca
+in memorie pentru afisarea ulterioara(Mai exact se stocheaza in bucket-uri
+de array-uri, unde fiecare bucket corespunde unui tip de paragraf). 
+Dupa primirea tuturor paragrafelor, fiecare thread pornit de master trimite
+mesajul "end" pentru a opri thread-urile responsabile de receptie.
+
+Pentru afisarea paragrafelor procesate in ordinea initiala stochez la
+citire tipurile paragrafelor, iar la final, in MASTER nu imi ramane
+decat sa parcurg ordinea paragrafelor si sa extrag din bucketul corespunzator
+paragraful curent.
+
+Mentionez ca la finalul fiecarei linii am un whitespace exact cum au si
+ref-urile. Nu stiu daca nu s-a luat in calcul ca dupa ultimul cuvant sa
+se puna spatiu, sau a fost doar o eroare in generarea lor.
+
+Feedback: O tema destul de frumoasa. Cheers!
+--------
+
+Scalabilitate: Am rulat checkerul de 9 ori si extras timpii. Va las fisierul
+cu ei in arhiva(scale.txt) si script-ul cu care i-am obtinut(Nu fac nimic fancy,
+doar rulez checkerul si scot timpii ca mi-a fost lene sa dau copy-paste de mana).
